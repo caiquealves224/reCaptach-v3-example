@@ -14,12 +14,14 @@ const handleSend = (req, res) => {
     const token = req.body.token;
     const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${token}`;
 
-    fetch(url, {
-        method: 'post'
-    })
-        .then(response => response.json())
-        .then(google_response => res.json({ google_response }))
-        .catch(error => res.json({ error }));
+    // fetch(url, {
+    //     method: 'post'
+    // })
+    //     .then(response => response.json())
+    //     .then(google_response => res.json({ google_response }))
+    //     .catch(error => res.json({ error }));
+
+    res.json({token})
 };
 
 app.post('/send', handleSend);
