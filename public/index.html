@@ -1,24 +1,41 @@
-<h1>reCAPTCHA v3 Demo</h1>
+<h1>reCAPTCHA v3 com site_key dinâmico</h1>
 <input type="text" id="site_key" placeholder="Enter Site Key" />
 <button type="button" id="send_button">Send</button>
 <hr>
 <div id="result"></div>
 
-<script src="https://www.google.com/recaptcha/api.js?render=6LfAV3YqAAAAADn_8B5mqeMg7kLPg_5a32Mauvju"></script>
 <script>
     function showResult(text) {
         document.querySelector('#result').innerHTML = text;
     }
 
-    function handleClick() {
+    function loadRecaptchaScript(siteKey) {
+        return new Promise((resolve, reject) => {
+            // Remover script anterior, se existir, para recarregar com novo siteKey
+            const existingScript = document.querySelector('#recaptcha-script');
+            if (existingScript) {
+                existingScript.remove();
+            }
+
+            // Criar novo script com o siteKey fornecido
+            const script = document.createElement('script');
+            script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
+            script.id = 'recaptcha-script';
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('Failed to load reCAPTCHA script'));
+            document.head.appendChild(script);
+        });
+    }
+
+    async function handleClick() {
         const siteKey = document.querySelector('#site_key').value;
 
-        if (!siteKey) {
-            alert("Por favor, insira o site_key.");
-            return;
-        }
+        if (!siteKey) return alert("Por favor, insira o site_key.");
 
-        grecaptcha.execute(siteKey, {action: 'demo'})
+        await loadRecaptchaScript(siteKey);
+
+        // Execute o reCAPTCHA com o site_key dinâmico
+        grecaptcha.execute(siteKey, { action: 'demo' })
             .then(function(token) {
                 var data = {
                     token: token
@@ -35,10 +52,12 @@
                     .then(response => response.text())
                     .then(text => showResult(text))
                     .catch(error => showResult(error));
+            })
+            .catch(error => {
+                console.error("Erro ao executar o reCAPTCHA:", error);
+                showResult("Erro ao executar o reCAPTCHA. Verifique o site_key e tente novamente.");
             });
     }
 
-    grecaptcha.ready(function() {
-        document.querySelector('#send_button').addEventListener('click', handleClick);
-    });
+    document.querySelector('#send_button').addEventListener('click', handleClick);
 </script>
