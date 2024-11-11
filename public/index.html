@@ -1,5 +1,5 @@
 <h1>reCAPTCHA v3 Demo</h1>
-<input type="text" id="hello" value="Hello World" />
+<input type="text" id="site_key" placeholder="Enter Site Key" />
 <button type="button" id="send_button">Send</button>
 <hr>
 <div id="result"></div>
@@ -11,11 +11,16 @@
     }
 
     function handleClick() {
-        grecaptcha.execute('6LfAV3YqAAAAADn_8B5mqeMg7kLPg_5a32Mauvju', {action: 'demo'})
+        const siteKey = document.querySelector('#site_key').value;
+
+        if (!siteKey) {
+            alert("Por favor, insira o site_key.");
+            return;
+        }
+
+        grecaptcha.execute(siteKey, {action: 'demo'})
             .then(function(token) {
-                var hello = document.querySelector('#hello').value;
                 var data = {
-                    hello: hello,
                     token: token
                 };
 
